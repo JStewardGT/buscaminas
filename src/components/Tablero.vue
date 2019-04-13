@@ -101,7 +101,7 @@ export default {
         indices.push(i);
       }
 
-      for (let i = 0; i < this.nivelActual; i++) {
+      for (let i = 0; i < this.nivelActual.minas; i++) {
         let posicion = Math.floor(Math.random() * (indices.length - 1));
         let indice = indices[posicion];
 
