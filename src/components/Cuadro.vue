@@ -1,16 +1,53 @@
 <template>
-  <div class="cuadro cuadro-inicial">
-    <span>{{ info.valor }}</span>
+  <div
+    @mousedown.right="bandera"
+    @contextmenu.prevent
+    class="cuadro" :class="info.inicial ? 'cuadro-inicial': 'cuadro-vacio'">
+    <span :class="clase">{{ valor }}</span>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['info']
-}
+  props: ["info"],
+  computed: {
+    valor() {
+      if (this.info.inicial) {
+        if (this.info.bandera) {
+          return "🚩";
+        }
+        else {
+          return "";
+        }
+      }
+      else {
+        return this.info.valor;
+      }
+    },
+    clase() {
+      if (this.info.inicial) {
+        if (this.info.bandera) {
+          return "bandera";
+        }
+        else {
+          return "";
+        }
+      }
+      else {
+        return this.info.claseValor;
+      }
+    }
+  },
+  methods: {
+    bandera () {
+      if (this.info.inicial) {
+        this.info.bandera = !this.info.bandera
+      }
+    }
+  }
+};
 </script>
 <style>
-
 .cuadro {
   display: grid;
   justify-content: center;
@@ -27,4 +64,14 @@ export default {
   cursor: pointer;
 }
 
+.cuadro-vacio {
+  width: 25px;
+  height: 25px;
+  border-top: none;
+  border-bottom: none;
+  border-right: solid 1px #7b7b7b;
+  border-left: solid 1px #7b7b7b;
+  background: #bdbdbdbd;
+  cursor: default;
+}
 </style>
