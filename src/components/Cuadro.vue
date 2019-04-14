@@ -1,6 +1,7 @@
 <template>
   <div
     @mousedown.right="bandera"
+    @mouseup.left="activar"
     @contextmenu.prevent
     class="cuadro" :class="info.inicial ? 'cuadro-inicial': 'cuadro-vacio'">
     <span :class="clase">{{ valor }}</span>
@@ -42,7 +43,11 @@ export default {
     bandera () {
       if (this.info.inicial) {
         this.info.bandera = !this.info.bandera
+        this.$emit('onCambiarMinasRestantes', this.info.bandera ? -1 : 1)
       }
+    },
+    activar () {
+      this.$emit('onActivar', this.info)
     }
   }
 };

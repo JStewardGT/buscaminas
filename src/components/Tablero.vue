@@ -19,14 +19,16 @@
       >3</span>
     </div>
     <div class="panel">
-      <div class="marcador minas-restantes">999</div>
-      <div class="cara">
+      <div class="marcador minas-restantes">{{ minasRestantesCifras }}</div>
+      <div class="cara" @click="iniciarNivel">
         <span>😋</span>
       </div>
-      <div class="marcador segundos">999</div>
+      <div class="marcador segundos">{{ segundosCifras }}</div>
     </div>
     <div class="matriz">
       <cuadro
+        @onCambiarMinasRestantes="cambiarMinasRestantes"
+        @onActivar="activarCuadro"
         :info="item"
         v-for="(item, index) in cuadros"
         :key="index"
@@ -74,14 +76,47 @@ export default {
         minas: 99
       },
       nivelActual: null,
-      minas: []
+      minas: [],
+      minasRestantes: 0,
+      segundos: 0,
+      inicio: false,
+      timer: null
     };
+  },
+  computed: {
+    minasRestantesCifras() {
+      let cifras = this.minasRestantes.toString();
+
+      if (cifras.length == 1) {
+        cifras = "00" + cifras;
+      } else if (cifras.length == 2) {
+        cifras = "0" + cifras;
+      }
+
+      return cifras;
+    },
+    segundosCifras() {
+      let cifras = this.segundos.toString();
+
+      if (cifras.length == 1) {
+        cifras = "00" + cifras;
+      } else if (cifras.length == 2) {
+        cifras = "0" + cifras;
+      }
+
+      return cifras;
+    }
   },
   created() {
     this.nivelActual = this.nivelPrincipiante;
     this.iniciarNivel();
   },
   methods: {
+    detenerTiempo () {
+      if (this.timer) {
+        clearInterval(this.timer)
+      }
+    },
     seleccionarNivel(nivel) {
       if (this.nivelActual.nivel == nivel) return;
 
@@ -92,6 +127,11 @@ export default {
       this.iniciarNivel();
     },
     iniciarNivel() {
+      this.detenerTiempo()
+      this.minasRestantes = this.nivelActual.minas;
+      this.segundos = 0;
+      this.inicio = false;
+
       let filas = this.nivelActual.filas;
       let columnas = this.nivelActual.columnas;
       let totalCuadros = filas * columnas;
@@ -187,7 +227,8 @@ export default {
         }
 
         if (cuadro.valor != "💣") {
-          let minas = cuadro.vecinos.filter(v => this.cuadros[v].valor == "💣").length;
+          let minas = cuadro.vecinos.filter(v => this.cuadros[v].valor == "💣")
+            .length;
 
           if (minas > 0) {
             cuadro.valor = minas;
@@ -195,6 +236,30 @@ export default {
           }
         }
       }
+    },
+    activarCuadro(cuadro) {
+      if (cuadro.inicial && !cuadro.bandera) {
+        cuadro.inicial = false;
+
+        if (!this.inicio) {
+          this.timer = setInterval(() => {
+            this.segundos++;
+          }, 1000);
+
+          this.inicio = true;
+        }
+
+        if (cuadro.valor == "💣") {
+          // Explotar
+        } else if (cuadro.valor == "") {
+          cuadro.vecinos.forEach(v => {
+            this.activarCuadro(this.cuadros[v]);
+          });
+        }
+      }
+    },
+    cambiarMinasRestantes(cantidad) {
+      this.minasRestantes += cantidad;
     }
   }
 };
@@ -244,7 +309,8 @@ export default {
   display: grid;
   justify-content: center;
   background-color: #bdbdbd;
-  padding: 0.5em;
+  padding: 10px;
+  user-select: none;
 }
 
 .niveles {
@@ -279,13 +345,21 @@ export default {
   display: grid;
   grid-auto-flow: column;
   font-size: 2em;
-  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  border-color: #818181 #fff #fff #818181;
+  border-style: solid;
+  border-width: 2px;
 }
 
 .marcador {
   background-color: black;
   color: red;
   height: 40px;
+  padding: 2px;
+  border-color: #818181 #fff #fff #818181;
+  border-style: solid;
+  border-width: 1px;
 }
 
 .minas-restantes {
@@ -299,6 +373,11 @@ export default {
   justify-self: center;
   width: 40px;
   height: 40px;
+  font-size: 24px;
+  border-color: #fff #818181 #818181 #fff;
+  border-style: solid;
+  border-width: 2px;
+  cursor: pointer;
 }
 
 .segundos {
