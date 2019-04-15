@@ -1,11 +1,5 @@
 <template>
-  <div
-    @mousedown.right="bandera"
-    @mouseup.left="activar"
-    @contextmenu.prevent
-    class="cuadro"
-    :class="info.inicial ? 'cuadro-inicial': 'cuadro-vacio'"
-  >
+  <div class="cuadro" :class="!info.inicial || info.suspenso ? 'cuadro-vacio': 'cuadro-inicial'">
     <span :class="clase">{{ valor }}</span>
   </div>
 </template>
@@ -38,16 +32,6 @@ export default {
         return this.info.claseValor;
       }
     }
-  },
-  methods: {
-    bandera() {
-      if (this.info.inicial) {
-        this.$emit("onCambiarMinasRestantes", this.info);
-      }
-    },
-    activar() {
-      this.$emit("onActivar", this.info);
-    }
   }
 };
 </script>
@@ -79,7 +63,7 @@ export default {
 .cuadro-vacio {
   width: 25px;
   height: 25px;
-  border: solid 1px #7b7b7b;
+  border: solid 0.1px #7b7b7b;
   background: #bdbdbdbd;
   cursor: default;
 }
