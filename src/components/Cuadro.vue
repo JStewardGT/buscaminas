@@ -3,7 +3,9 @@
     @mousedown.right="bandera"
     @mouseup.left="activar"
     @contextmenu.prevent
-    class="cuadro" :class="info.inicial ? 'cuadro-inicial': 'cuadro-vacio'">
+    class="cuadro"
+    :class="info.inicial ? 'cuadro-inicial': 'cuadro-vacio'"
+  >
     <span :class="clase">{{ valor }}</span>
   </div>
 </template>
@@ -16,12 +18,10 @@ export default {
       if (this.info.inicial) {
         if (this.info.bandera) {
           return "🚩";
-        }
-        else {
+        } else {
           return "";
         }
-      }
-      else {
+      } else {
         return this.info.valor;
       }
     },
@@ -29,30 +29,37 @@ export default {
       if (this.info.inicial) {
         if (this.info.bandera) {
           return "bandera";
-        }
-        else {
+        } else {
           return "";
         }
-      }
-      else {
+      } else if (this.info.valor == "❌") {
+        return "bandera-falsa";
+      } else {
         return this.info.claseValor;
       }
     }
   },
   methods: {
-    bandera () {
+    bandera() {
       if (this.info.inicial) {
-        this.info.bandera = !this.info.bandera
-        this.$emit('onCambiarMinasRestantes', this.info.bandera ? -1 : 1)
+        this.$emit("onCambiarMinasRestantes", this.info);
       }
     },
-    activar () {
-      this.$emit('onActivar', this.info)
+    activar() {
+      this.$emit("onActivar", this.info);
     }
   }
 };
 </script>
 <style>
+.bandera {
+  font-size: 12px;
+}
+
+.bandera-falsa {
+  font-size: 18px;
+}
+
 .cuadro {
   display: grid;
   justify-content: center;
@@ -72,10 +79,7 @@ export default {
 .cuadro-vacio {
   width: 25px;
   height: 25px;
-  border-top: none;
-  border-bottom: none;
-  border-right: solid 1px #7b7b7b;
-  border-left: solid 1px #7b7b7b;
+  border: solid 1px #7b7b7b;
   background: #bdbdbdbd;
   cursor: default;
 }

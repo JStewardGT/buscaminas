@@ -21,7 +21,7 @@
     <div class="panel">
       <div class="marcador minas-restantes">{{ minasRestantesCifras }}</div>
       <div class="cara" @click="iniciarNivel">
-        <span>😋</span>
+        <span>{{ cara }}</span>
       </div>
       <div class="marcador segundos">{{ segundosCifras }}</div>
     </div>
@@ -45,6 +45,7 @@ export default {
   components: { Cuadro },
   data() {
     return {
+      cara: "😋",
       cuadros: [],
       colores: [
         "",
@@ -80,7 +81,9 @@ export default {
       minasRestantes: 0,
       segundos: 0,
       inicio: false,
-      timer: null
+      timer: null,
+      jugando: false,
+      cuadrosRestantes: 0
     };
   },
   computed: {
@@ -112,9 +115,9 @@ export default {
     this.iniciarNivel();
   },
   methods: {
-    detenerTiempo () {
+    detenerTiempo() {
       if (this.timer) {
-        clearInterval(this.timer)
+        clearInterval(this.timer);
       }
     },
     seleccionarNivel(nivel) {
@@ -127,7 +130,8 @@ export default {
       this.iniciarNivel();
     },
     iniciarNivel() {
-      this.detenerTiempo()
+      this.cara = "😋";
+      this.detenerTiempo();
       this.minasRestantes = this.nivelActual.minas;
       this.segundos = 0;
       this.inicio = false;
@@ -135,6 +139,8 @@ export default {
       let filas = this.nivelActual.filas;
       let columnas = this.nivelActual.columnas;
       let totalCuadros = filas * columnas;
+
+      this.cuadrosRestantes = totalCuadros - this.nivelActual.minas;
 
       this.cuadros = [];
       let indices = [];
@@ -236,9 +242,11 @@ export default {
           }
         }
       }
+
+      this.jugando = true;
     },
     activarCuadro(cuadro) {
-      if (cuadro.inicial && !cuadro.bandera) {
+      if (this.jugando && cuadro.inicial && !cuadro.bandera) {
         cuadro.inicial = false;
 
         if (!this.inicio) {
@@ -250,16 +258,59 @@ export default {
         }
 
         if (cuadro.valor == "💣") {
-          // Explotar
-        } else if (cuadro.valor == "") {
-          cuadro.vecinos.forEach(v => {
-            this.activarCuadro(this.cuadros[v]);
-          });
+          this.explosion(cuadro);
+        } else {
+          this.cuadrosRestantes--;
+
+          if (this.cuadrosRestantes <= 0) {
+            this.ganar();
+          } else if (cuadro.valor == "") {
+            cuadro.vecinos.forEach(v => {
+              this.activarCuadro(this.cuadros[v]);
+            });
+          }
         }
       }
     },
-    cambiarMinasRestantes(cantidad) {
-      this.minasRestantes += cantidad;
+    cambiarMinasRestantes(cuadro) {
+      if (this.jugando) {
+        cuadro.bandera = !cuadro.bandera;
+        this.minasRestantes += cuadro.bandera ? -1 : 1;
+      }
+    },
+    explosion(cuadro) {
+      this.jugando = false;
+      this.detenerTiempo();
+
+      this.minas.forEach(mina => {
+        if (!mina.bandera) {
+          mina.inicial = false;
+        }
+      });
+
+      let banderas = this.cuadros.filter(c => c.bandera);
+
+      banderas.forEach(c => {
+        if (c.valor != "💣") {
+          c.bandera = false;
+          c.valor = "❌";
+          c.inicial = false;
+        }
+      });
+
+      cuadro.valor = "💥";
+      this.cara = "🥺";
+    },
+    ganar() {
+      this.jugando = false
+      this.detenerTiempo();
+
+      this.minas.forEach(mina => {
+        mina.bandera = true;
+      });
+
+      this.minasRestantes = 0;
+      this.cara = "😎";
     }
   }
 };
