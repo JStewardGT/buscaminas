@@ -1,5 +1,23 @@
 # Buscaminas
 
+minesweeper game for web, programmed with Vue and css grid
+
+## link github pages
+
+[Buscaminas](https://jstewardgt.github.io/buscaminas/)
+
+## screenshot
+
+![Scrennshot](screenshot.png)
+
+## Used tools
+
+1. Vue
+
+2. CSS
+
+3. HTML
+
 ## Project setup
 ```
 npm install
